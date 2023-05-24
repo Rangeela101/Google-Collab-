@@ -1,0 +1,608 @@
+
+Course Objectives
+
+
+> To understand and implement searching and sorting algorithms
+> To learn the fundamentals of GPU Computing in the CUDA environment
+> To illustrate the concepts of Artificial Intelligence/Machine Learning (AI/ML)
+
+Course Outcomes
+
+
+
+
+CO1: Analyze and measure performance of sequential and parallel algorithms.
+CO2: Design and Implement solutions for multicore/Distributed/parallel environment. CO3: Identify and apply the suitable algorithms to solve AI/ML problems.
+CO4: Apply the technique of Deep Neural network for implementing Linear regression and
+
+
+Guidelines for Laboratory Conduction
+? List of recommended programming assignments and sample mini-projects is provided for reference.
+? Referring these, Course Teacher or Lab Instructor may frame the assignments/mini-project by understanding
+the prerequisites, technological aspects, utility and recent trends related to the respective courses.
+? Preferably there should be multiple sets of assignments/mini-project and distribute among batches of students.
+? Real world problems/application based assignments/mini-projects create interest among learners serving as foundation for future research or startup of business projects.
+? Mini-project can be completed in group of 2 to 3 students.
+? Software Engineering approach with proper documentation is to be strictly followed.
+? Use of open source software is to be encouraged.
+? Instructor may also set one assignment or mini-project that is suitable to respective course beyond the scope of syllabus.
+• Operating System recommended :- 64-bit Open source Linux or its derivative
+• Programming Languages: Object Oriented Languages C++/JAVA/PYTHON/R
+• Programming tools recommended: Front End: Java/Perl/PHP/Python/Ruby/.net,
+• Backend : MongoDB/MYSQL/Oracle
+• Database Connectivity : ODBC/JDBC	4
+
+410250 . HcgH E'ex€oxzzzanee Corrzpuccn
+by	4 Aus  goczzeotu and 1	I n Project are mandatory
+Soup 1
+
+
+
+
+
+
+
+
+
+2.	IrnPlr-rn grit Mi ri, M ax, S tis	arid
+4. W'"rite  a  C U DC	fear
+1 .	Actor it i uri	c•F txvu l‹rrps x'actors
+Z .	Mn	lrix  KI ti1 t   i Ph c   at  i c'n	u sing  EU DA G
+
+Recliictiuri.
+
+
+Group 1
+
+
+
+Assignment 1 :
+
+
+Parallel Breadth First Search
+1. To design and implement parallel breadth first search, you will need to divide the graph into smaller sub-graphs and assign each sub-graph to a different processor or thread.
+2. Each processor or thread will then perform a breadth first search on its assigned sub-graph concurrently with the other processors or threads.
+3. Two methods : Vertex by Vertex OR Level By Level
+
+
+
+
+
+
+
+
+
+
+
+7
+
+
+Breadth First Search
+
+
+To design and implement parallel breadth first search using OpenMP, you can use the existing breadth first search algorithm and parallelize it using OpenMP's palatalization constructs.
+
+Program Sample :
+#include <iostream> #include <vector> #include <queue> #include <omp.h>
+
+using namespace std;
+
+void bfs(vector<vector<int>>& graph, int start, vector<bool>& visited) {
+queue<int> q; q.push(start); visited[start] = true; #pragma omp parallel
+{
+#pragma omp single
+{
+while (!q.empty()) {
+int vertex = q.front(); q.pop();
+10
+
+#pragma omp task firstprivate(vertex)
+{
+for (int neighbor : graph[vertex]) {
+if (!visited[neighbor]) { q.push(neighbor); visited[neighbor] = true; #pragma omp task bfs(graph, neighbor, visited);
+}
+}
+}
+}
+}
+}
+}
+
+void parallel_bfs(vector<vector<int>>& graph, int start) { vector<bool> visited(graph.size(), false);
+bfs(graph, start, visited);
+}
+11
+
+
+
+
+1. In this implementation, the parallel_bfs function takes in a graph represented as an adjacency list, where each element
+in the list is a vector of neighboring vertices, and a starting vertex.
+2. The bfs function uses a queue to keep track of the vertices to visit, and a boolean visited array to keep track of which vertices have been visited. The #pragma omp parallel directive creates a parallel region and the #pragma omp single directive creates a single execution context within that region.
+3. Inside the while loop, the #pragma omp task directive creates a new task for each unvisited neighbor of the current
+vertex.
+4. This allows each task to be executed in parallel with other tasks. The firstprivate clause is used to ensure that each task has its own copy of the vertex variable.
+5. This is just one possible implementation, and there are many ways to improve it depending on the specific requirements of your application. For example, you can use omp atomic or omp critical to protect the shared resource queue.
+6. This is just one possible implementation, and there are many ways to improve it depending on the specific requirements of your application. For example, you can use omp atomic or omp critical to protect the shared resource queue.
+
+
+12
+
+
+Parallel Depth First Search
+
+
+
+Parallel Depth-First Search
+• Different subtrees can be searched concurrently.
+• Subtrees can be very different in size.
+• Estimate the size of a subtree rooted at a node.
+
+Program
+#include <iostream>
+#include <vector> #include <stack> #include <omp.h>
+
+using namespace std;
+
+void dfs(vector<vector<int>>& graph, int start,
+vector<bool>& visited) { stack<int> s; s.push(start); visited[start] = true;
+#pragma omp parallel
+{
+#pragma omp single
+{
+while (!s.empty()) { int vertex = s.top(); s.pop();
+
+
+21
+
+#pragma omp task firstprivate(vertex)
+{
+for (int neighbor : graph[vertex]) {
+if (!visited[neighbor]) { s.push(neighbor); visited[neighbor] = true; #pragma omp task dfs(graph, neighbor, visited);
+}
+}
+}
+}
+}
+}
+void parallel_dfs(vector<vector<int>>& graph, int start) { vector<bool> visited(graph.size(), false);
+dfs(graph, start, visited);
+}
+
+
+22
+
+1. In this implementation, the parallel_dfs function takes in a graph represented as an adjacency list, where each
+element in the list is a vector of neighboring vertices, and a starting vertex.
+2. The dfs function uses a stack to keep track of the vertices to visit, and a boolean visited array to keep track of which vertices have been visited.
+3. The #pragma omp parallel directive creates a parallel region and the #pragma omp single directive creates
+a single execution context within that region.
+4. Inside the while loop, the #pragma omp task directive creates a new task for each unvisited neighbor of the current vertex.
+5. This allows each task to be executed in parallel with other tasks. The firstprivate clause is used to ensure that each task has its own copy of the vertex variable.
+6. This implementation is suitable for both tree and undirected graph, since both are represented as an adjacency list
+and the algorithm is using a stack to traverse the graph.
+7. This is just one possible implementation, and there are many ways to improve it depending on the specific requirements of your application. For example, you can use omp atomic or omp critical to protect the shared resource stack.
+8. The dfs function uses a stack to keep track of the vertices to visit, and a boolean visited array to keep track
+of which vertices have been visited. The #pragma omp parallel directive creates a parallel region and the #pragma omp single directive creates a single execution context within that region.
+
+
+
+23
+
+Assignment 2 :
+Write a program to implement Parallel Bubble Sort and Merge sort using OpenMP. Use existing algorithms and measure the performance of sequential and parallel algorithms.
+
+
+
+
+
+
+
+
+
+24
+
+
+Bubble sort
+
+
+1. The complexity of bubble sort is T(n2).
+2. Bubble sort is difficult to parallelize since the algorithm has no
+concurrency.
+
+
+Odd-Even Transposition
+
+
+
+
+
+
+Sorting n = 8 elements, using the odd-even transposition sort algorithm. During each phase, n = 8 elements are compared.
+
+
+Parallel Odd-Even Transposition
+1. Consider the one item per processor case.
+2. There are n iterations, in each iteration, each processor does one
+compare-exchange.
+3. The parallel run time of this formulation is T(n).
+4. This is cost optimal with respect to the base serial algorithm but not
+the optimal one.
+
+Parallel Odd-Even Transposition
+
+Parallel formulation of odd-even transposition.
+
+
+
+
+
+
+
+
+
+Bubble Sort Odd Even Transposition
+
+#include <iostream> #include <vector> #include <omp.h>
+
+using namespace std;
+
+void bubble_sort_odd_even(vector<int>& arr) { bool isSorted = false;
+while (!isSorted) { isSorted = true;
+#pragma omp parallel for
+for (int i = 0; i < arr.size() - 1; i += 2) { if (arr[i] > arr[i + 1]) {
+swap(arr[i], arr[i + 1]); isSorted = false;
+}
+}
+#pragma omp parallel for
+for (int i = 1; i < arr.size() - 1; i += 2) {
+if (arr[i] > arr[i + 1]) {
+swap(arr[i], arr[i + 1]); isSorted = false;
+}
+}
+}
+}	33
+
+
+
+
+
+
+
+int main() {
+vector<int> arr = {5, 2, 9, 1, 7, 6, 8, 3, 4};
+double start, end;
+
+1. This program uses OpenMP to parallelize the bubble sort algorithm.
+2. The #pragma omp parallel for directive tells the compiler to create a team of threads to execute the for loop within the block in parallel.
+3. Each thread will work on a different iteration of the loop, in this case on comparing and swapping the elements of the
+array.
+4. The bubbleSort function takes in an array, and it sorts it using the bubble sort algorithm. The outer loop iterates from 0 to n-2 and the inner loop iterates from 0 to n-i-1, where i is the index of the outer loop. The inner loop compares the current element with the next element, and if the current element is greater than the next element, they are swapped.
+5. The main function creates a sample array and calls the bubbleSort function to sort it. The sorted array is then printed.
+6. This is a skeleton code and it may not run as is and may need some modification to work with specific inputs and
+requirements.
+7. It is worth noting that bubble sort is not an efficient sorting algorithm, specially for large inputs, and it may not scale well with more number of threads. Also parallelizing bubble sort does not have a significant improvement in performance due to the nature of the algorithm itself.
+8. In this implementation, the bubble_sort_odd_even function takes in an array and sorts it using the odd-even transposition algorithm. The outer while loop continues until the array is sorted. Inside the loop, the #pragma omp parallel for directive creates a parallel region and divides the loop iterations among the available threads. Each thread performs the swap operation in parallel, improving the performance of the algorithm.
+9. The two #pragma omp parallel for inside while loop, one for even indexes and one for odd indexes, allows each thread to sort the even and odd indexed elements simultaneously and prevent the dependency.
+
+
+
+
+
+35
+
+
+Merge	Sort
+
+Parallel Merge Sort
+
+Given a set of elements A = {a .. ~,~, ... ,an},
+Aodd and Aeven are defined as the set of elements of A with odd and even indices, respectively.
+
+For example, Aodd = {a .. a3,a" ... } and Aeven = { ~,a4,a6" .. } regarding a set of elements A = {a...an}'
+Similarly, let a set of elements B = {b ....bn}. We can then define the merge operation as:
+
+
+Merge(A,B) = {a.,b.,~,b2,a3,b3, ... ,an,bn} For example,
+if A = {1,2,3,4} and B = {5,6,7,8}
+then Merge( (1,2,3,4 },{5,6,7,8}) = {1,5,2,6,3,7,4,8}
+
+
+Join(A,B) = (Merge(A,B), Odd-Even(A,B)}
+
+Algorithm:	Odd-Even(A,B,S)
+begin
+if A and B are of length 1
+then
+Merge A and B using one Com pare-and-Exchange operation else
+begin
+compute S,g, and S.ven In Parallel do
+S"g = Merge(A,g,B,p)
+Seven	Merge(A","B"")
+ 
+    end endif end
+
+Example: Suppose the set of elements S =
+{2,3,6,1O,15,4,5,8} and we start with A =
+{2,6,IO,15} and B = {3,4,5,8}, two sorted sets of elements. Then
+
+#include <iostream> #include <vector> #include <omp.h>
+
+using namespace std;
+
+void merge(vector<int>& arr, int l, int m, int r) { int i, j, k;
+int n1 = m - l + 1; int n2 = r - m;
+vector<int> L(n1), R(n2);
+
+for (i = 0; i < n1; i++) { L[i] = arr[l + i];
+}
+for (j = 0; j < n2; j++) { R[j] = arr[m + 1 + j];
+}
+i = 0;
+j = 0;
+k = l;
+while (i < n1 && j < n2) { if (L[i] <= R[j]) {
+arr[k++] = L[i++];
+} else {
+arr[k++] = R[j++];
+}
+}
+40
+
+void merge_sort(vector<int>& arr, int l, int r) {
+if (l < r) {
+int m = l + (r - l) / 2; #pragma omp task merge_sort(arr, l, m); #pragma omp task merge_sort(arr, m + 1, r); merge(arr, l, m, r);
+}
+}
+
+
+int main() {
+vector<int> arr = {5, 2, 9, 1, 7, 6, 8, 3, 4}; double start, end;
+
+// Measure performance of sequential merge sort start = omp_get_wtime();
+merge_sort(arr, 0, arr.size() - 1); end = omp_get_wtime();
+cout << "Sequential merge sort time: " << end - start <<
+endl;
+
+// Measure performance of parallel merge sort arr = {5, 2, 9, 1, 7, 6, 8, 3, 4};
+start = omp_get_wtime(); parallel_merge_sort(arr); end = omp_get
+
+
+
+
+42
+
+
+
+
+Assignment 3 : Implement Min, Max, Sum and Average operations using Parallel Reduction
+
+#include <iostream> #include <vector> #include <omp.h>
+
+using namespace std;
+void min_reduction(vector<int>& arr) {
+int min_value = INT_MAX;
+#pragma omp parallel for reduction(min: min_value) for (int i = 0; i < arr.size(); i++) {
+if (arr[i] < min_value) { min_value = arr[i];
+}
+}
+cout << "Minimum value: " << min_value << endl;
+}
+void max_reduction(vector<int>& arr) { int max_value = INT_MIN;
+#pragma omp parallel for reduction(max: max_value)
+for (int i = 0; i < arr.size(); i++) { if (arr[i] > max_value) {
+max_value = arr[i];
+}
+}
+cout << "Maximum value: " << max_value << endl;
+}
+44
+void sum_reduction(vector<int>& arr) {
+
+int sum = 0;
+#pragma omp parallel for reduction(+: sum) for (int i = 0; i < arr.size(); i++) {
+sum += arr[i];
+}
+cout << "Sum: " << sum << endl;
+}
+
+void average_reduction(vector<int>& arr) { int sum = 0;
+#pragma omp parallel for reduction(+: sum) for (int i = 0; i < arr.size(); i++) {
+sum += arr[i];
+}
+cout << "Average: " << (double)sum / arr.size() << endl;
+}
+
+int main() {
+vector<int> arr = {5, 2, 9, 1, 7, 6, 8, 3, 4};
+
+min_reduction(arr); max_reduction(arr); sum_reduction(arr); average_reduction(arr);
+}	45
+
+1. The min_reduction function finds the minimum value in the input array using the #pragma omp parallel for reduction(min: min_value) directive, which creates a parallel region and divides the loop iterations among the available threads. Each thread performs the comparison operation in parallel and updates the min_value variable if a smaller value is found.
+
+
+1. Similarly, the max_reduction function finds the maximum value in the array, sum_reduction function finds the sum of the elements of array and average_reduction function finds the average of the elements of array by dividing the sum by the size of the array.
+
+1. The reduction clause is used to combine the results of multiple threads into a single value, which is then returned by the function. The min and max operators are used for the min_reduction and max_reduction functions, respectively, and the + operator is used for the sum_reduction and average_reduction functions. In the main function, it creates a vector and calls the functions min_reduction, max_reduction, sum_reduction, and average_reduction to compute the values of min, max, sum and average respectively.
+
+
+
+
+
+
+46
+
+
+
+
+
+
+
+Assignment 4 : Write a CUDA Program for :
+1. Addition of two large vectors
+2. Matrix Multiplication using CUDA C
+
+
+Vector Addition
+
+#include <iostream> #include <cuda_runtime.h>
+
+    global 	void addVectors(int* A, int* B, int* C, int n) {
+int i = blockIdx.x * blockDim.x + threadIdx.x; if (i < n) {
+C[i] = A[i] + B[i];
+}
+}
+
+int main() {
+int n = 1000000; int* A, * B, * C;
+int size = n * sizeof(int);
+
+// Allocate memory on the host cudaMallocHost(&A, size); cudaMallocHost(&B, size); cudaMallocHost(&C, size);
+
+// Initialize the vectors
+for (int i = 0; i < n; i++) {
+A[i] = i;
+B[i] = i * 2;
+}
+49
+
+// Allocate memory on the device int* dev_A, * dev_B, * dev_C; cudaMalloc(&dev_A, size); cudaMalloc(&dev_B, size); cudaMalloc(&dev_C, size);
+
+// Copy data from host to device
+cudaMemcpy(dev_A, A, size,
+cudaMemcpyHostToDevice); cudaMemcpy(dev_B, B, size,
+cudaMemcpyHostToDevice);
+
+// Launch the kernel int blockSize = 256;
+int numBlocks = (n + blockSize - 1) / blockSize;
+
+
+
+
+
+
+
+50
+
+
+// Copy data from device to host
+cudaMemcpy(C, dev_C, size, cudaMemcpyDeviceToHost);
+
+// Print the results
+for (int i = 0; i < 10; i++) {
+cout << C[i] << " ";
+}
+cout << endl;
+
+
+
+
+1.  In this program, the `addVectors` kernel takes in the two input vectors `A` and `B`, the output vector `C`, and  the size of the vectors `n`. The kernel uses the `blockIdx.x` and `threadIdx.x` variables to calculate the index `i` of the current thread. If the index is less than `n`, the kernel performs the addition operation `C[i] = A[i] + B[i]`.
+
+1. In the `main` function, the program first allocates memory for the input and output vectors on the host and initializes them. Then it allocates memory for the vectors on the device and copies the data from the host to the device using `cudaMemcpy`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+52
+
+
+Matrix multiplication
+
+#include <cuda_runtime.h> #include <iostream>
+
+    global 	void matmul(int* A, int* B, int* C, int N) { int Row = blockIdx.y*blockDim.y+threadIdx.y;
+int Col = blockIdx.x*blockDim.x+threadIdx.x;
+
+if (Row < N && Col < N) { int Pvalue = 0;
+for (int k = 0; k < N; k++) {
+Pvalue += A[Row*N+k] * B[k*N+Col];
+}
+C[Row*N+Col] = Pvalue;
+}
+}
+
+int main() {
+int N = 512;
+int size = N * N * sizeof(int);
+
+int* A, * B, * C;
+int* dev_A, * dev_B, * dev_C;
+
+cudaMallocHost(&A, size); cudaMallocHost(&B, size);
+cudaMallocHost(&C, size);	62
+
+cudaMalloc(&dev_A, size); cudaMalloc(&dev_B, size); cudaMalloc(&dev_C, size);
+
+// Initialize matrices A and B for (int i = 0; i < N; i++) {
+for (int j = 0; j < N; j++) { A[i*N+j] = i*N+j; B[i*N+j] = j*N+i;
+}
+}
+
+// Print the result
+for (int i = 0; i < 10; i++) { for (int j = 0; j < 10; j++) {
+std::cout << C[i*N+j] << " ";
+}
+std::cout << std::endl;
+}
+
+// Free memory cudaFree(dev_A); cudaFree(dev_B); cudaFree(dev_C); cudaFreeHost(A); cudaFreeHost(B); cudaFreeHost(C);
+
+return 0;
+
+
+
+
+64
+
+
+• In this program, the `matmul` kernel takes in the two input matrices `A` and `B`, the output matrix `C`, and the size of the matrices `N`. The kernel uses the `blockIdx.x`, `blockIdx.y`, `threadIdx.x`, and `threadIdx.y` variables to calculate the indices of the current thread. If the indices are less than `N`, the kernel performs the matrix multiplication operation `Pvalue += A[Row*N+k] * B[k*N+Col]` and store the Pvalue in
+`C[Row*N+Col]`.
+
+• In the `main` function, the program first allocates memory for the input and output matrices on the host and initializes them. Then it allocates memory for the matrices on the device and copies the data from the host to the device using `cudaMemcpy`.
+
+• Next, the program launches the kernel with the appropriate grid and block dimensions. The kernel uses a 2D grid of thread blocks to perform the matrix multiplication in parallel.
+
+• Finally, it copies the data from device to host using cudaMemcpy and prints the result using nested for loop. And it also frees the memory used.
+
+
+
+
+
+65
+
+#include <iostream> #include <algorithm> #include <mpi.h>
+
+using namespace std;
+
+// Function to partition the array
+int partition(int arr[], int low, int high) { int pivot = arr[high];
+int i = (low - 1);
+
+for (int j = low; j <= high- 1; j++) { if (arr[j] <= pivot) {
+i++;
+swap(arr[i], arr[j]);
+}
+}
+swap(arr[i + 1], arr[high]); return (i + 1);
+}
+
+// Function to perform quicksort on the partition
+void quicksort(int arr[], int low, int high) {
+if (low < high) {
+int pivot = partition(arr, low, high); quicksort(arr, low, pivot - 1);
+quicksort(arr, pivot + 1, high);	75
+}
+}
+
+
